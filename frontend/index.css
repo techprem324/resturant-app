@@ -26,6 +26,30 @@
   --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Custom Scrollbar Styles for premium styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Premium Hover Transitions */
+.hover-scale {
+  transition: var(--transition-smooth);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;
