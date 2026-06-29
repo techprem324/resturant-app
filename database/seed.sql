@@ -1,4 +1,5 @@
 -- Seed File: Populating Lumina Restaurant OS
+-- This script inserts default configurations, categories, menu items, table zones, CRM profiles, and inventory levels.
 
 -- 1. Insert Menu Categories
 INSERT INTO menu_categories (name) VALUES 
