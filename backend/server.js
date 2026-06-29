@@ -18,6 +18,11 @@ const io = socketIo(server, {
 
 const PORT = process.env.PORT || 5000;
 
+// API Health Check Endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
 // --- In-Memory Mock Database (Aligned with PostgreSQL DDL & Seed) ---
 
 const db = {
