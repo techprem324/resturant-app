@@ -112,3 +112,9 @@ CREATE TABLE IF NOT EXISTS traffic_analytics (
     payload JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Database Optimization Indexes for Analytics & Booking
+CREATE INDEX IF NOT EXISTS idx_reservations_time ON reservations(reservation_time);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_traffic_event ON traffic_analytics(event_type);
+
