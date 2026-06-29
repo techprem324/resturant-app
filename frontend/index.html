@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LUMINA OS - The future of premium dining. Explore our mood-based menus, interactive seating map, and AI sommelier.">
+  <title>LUMINA OS | Next-Gen Restaurant Operating System</title>
+  
+  <!-- Fonts: DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- Socket.io Client -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+  <!-- Background WebGL/Canvas Simulation -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Sticky Glassmorphic Header -->
+  <header class="header" id="header">
+    <div class="header-container">
+      <a href="#" class="logo" id="logo-link">
+        <svg class="logo-svg" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="0" y="22" font-family="'DM Sans', sans-serif" font-weight="500" font-size="20" letter-spacing="0.2em" fill="url(#gold-gradient)">LUMINA</text>
+          <defs>
+            <linearGradient id="gold-gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#FFBF00" />
+              <stop offset="100%" stop-color="#D4AF37" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </a>
+      <nav class="nav" id="main-nav">
+        <a href="#vibe-section" class="nav-link">Vibe Selector</a>
+        <a href="#menu-section" class="nav-link">Interactive Menu</a>
+        <a href="#seating-section" class="nav-link">Seat Reservation</a>
+        <a href="#sourcing-section" class="nav-link">Sourcing Map</a>
+        <a href="#" class="nav-link" id="sommelier-trigger">Sommelier AI</a>
+        <a href="#" class="nav-link" id="admin-trigger">Ops Dashboard</a>
+      </nav>
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-cart" id="cart-btn" aria-label="View Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <a href="#seating-section" class="btn btn-primary" id="book-cta">Book Table</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Immersive Hero Section -->
+    <section class="hero" id="hero-section">
+      <div class="hero-glow"></div>
+      <div class="hero-content">
+        <span class="hero-tagline uppercase">Midnight Reserve</span>
+        <h1 class="hero-title">Crafting Light, Shadow, and Taste</h1>
+        <p class="hero-subtitle">An immersive, low-light culinary experience designed for sensory clarity and atmospheric luxury.</p>
+        
+        <!-- Live System Status (Restaurant OS Indicator) -->
+        <div class="live-status-container">
+          <span class="status-dot-pulse"></span>
+          <span class="status-text text-muted">Lumina Engine Online: 4 Tables Open • Ambient Lounge Audio: Live</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Vibe Selector Dial -->
+    <section class="vibe-section" id="vibe-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag font-caps">Aesthetic Filtering</span>
+          <h2 class="section-title">Select Your Atmosphere</h2>
+          <p class="section-subtitle">Choose a culinary vibe to align Lumina's menus, lighting, and pairing systems with your evening's intent.</p>
+        </div>
+
+        <div class="vibe-dial-container">
+          <div class="vibe-dial" id="vibe-dial">
+            <div class="vibe-option active" data-vibe="moody" style="--angle: 0deg;">
+              <span class="vibe-emoji">🌌</span>
+              <span class="vibe-name">Seductive & Moody</span>
+            </div>
+            <div class="vibe-option" data-vibe="fresh" style="--angle: 90deg;">
+              <span class="vibe-emoji">🍃</span>
+              <span class="vibe-name">Fresh & Energizing</span>
+            </div>
+            <div class="vibe-option" data-vibe="intimate" style="--angle: 180deg;">
+              <span class="vibe-emoji">🕯️</span>
+              <span class="vibe-name">Intimate & Romantic</span>
+            </div>
+            <div class="vibe-option" data-vibe="social" style="--angle: 270deg;">
+              <span class="vibe-emoji">🥃</span>
+              <span class="vibe-name">Late-Night Social</span>
+            </div>
+            <div class="dial-center">
+              <span class="dial-center-label">VIBE</span>
+              <span class="dial-center-active" id="dial-active-name">Seductive & Moody</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dynamic Menu Section -->
+    <section class="menu-section" id="menu-section">
+      <div class="container">
+        <div class="menu-tabs" id="menu-categories">
+          <button class="menu-tab active" data-category="all">Full Collection</button>
+          <button class="menu-tab" data-category="mains">Mains</button>
+          <button class="menu-tab" data-category="starters">Starters</button>
+          <button class="menu-tab" data-category="drinks">Mixology</button>
+        </div>
+
+        <div class="menu-grid" id="menu-grid">
+          <!-- Dynamically generated menu cards go here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Seating Map & Booking Section -->
+    <section class="seating-section" id="seating-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag font-caps">Real-time Reservation</span>
+          <h2 class="section-title">Select Your Specific Table</h2>
+          <p class="section-subtitle">Interact with our live dining room layout. Click an available table to book your exact seating zone.</p>
+        </div>
+
+        <div class="seating-grid">
+          <!-- Interactive seating SVG layout map -->
+          <div class="seating-map-container">
+            <svg class="seating-map" viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg" id="seating-svg">
+              <!-- Grid bounds / zones -->
+              <rect x="10" y="10" width="150" height="330" fill="none" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4" />
+              <text x="20" y="30" fill="rgba(255,255,255,0.3)" font-size="10" font-weight="700" letter-spacing="0.1em">WINDOW ZONE</text>
+              
+              <rect x="170" y="10" width="160" height="330" fill="none" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4" />
+              <text x="180" y="30" fill="rgba(255,255,255,0.3)" font-size="10" font-weight="700" letter-spacing="0.1em">MAIN HALL</text>
+
+              <rect x="340" y="10" width="150" height="330" fill="none" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4" />
+              <text x="350" y="30" fill="rgba(255,255,255,0.3)" font-size="10" font-weight="700" letter-spacing="0.1em">LOUNGE & PATIO</text>
+
+              <!-- Tables representation -->
+              <!-- Table 1 (Window, 2 Guests) -->
+              <g class="svg-table" data-id="1" cursor="pointer">
+                <circle cx="85" cy="100" r="28" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-circle" />
+                <rect x="50" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="112" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="85" y="104" fill="white" font-size="11" text-anchor="middle">T1</text>
+              </g>
+
+              <!-- Table 2 (Window, 2 Guests) -->
+              <g class="svg-table" data-id="2" cursor="pointer">
+                <circle cx="85" cy="240" r="28" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-circle" />
+                <rect x="50" y="234" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="112" y="234" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="85" y="244" fill="white" font-size="11" text-anchor="middle">T2</text>
+              </g>
+
+              <!-- Table 3 (Main Hall, 4 Guests) -->
+              <g class="svg-table" data-id="3" cursor="pointer">
+                <circle cx="250" cy="100" r="32" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-circle" />
+                <rect x="244" y="60" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="244" y="132" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="210" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="282" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="250" y="104" fill="white" font-size="11" text-anchor="middle">T3</text>
+              </g>
+
+              <!-- Table 5 (Main Hall, 6 Guests) -->
+              <g class="svg-table" data-id="5" cursor="pointer">
+                <rect x="210" y="200" width="80" height="50" rx="6" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-rect" />
+                <rect x="220" y="186" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="244" y="186" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="268" y="186" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="220" y="256" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="244" y="256" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="268" y="256" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="250" y="230" fill="white" font-size="11" text-anchor="middle">T5</text>
+              </g>
+
+              <!-- Table 4 (Patio, 4 Guests) -->
+              <g class="svg-table" data-id="4" cursor="pointer">
+                <circle cx="415" cy="100" r="32" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-circle" />
+                <rect x="409" y="60" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="409" y="132" width="12" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="375" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="447" y="94" width="8" height="12" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="415" y="104" fill="white" font-size="11" text-anchor="middle">T4</text>
+              </g>
+
+              <!-- Table 6 (Lounge, 8 Guests) -->
+              <g class="svg-table" data-id="6" cursor="pointer">
+                <rect x="365" y="200" width="100" height="60" rx="8" fill="rgba(26,26,26,0.8)" stroke="rgba(255,255,255,0.1)" stroke-width="2" class="table-rect" />
+                <!-- Chairs surrounding large table -->
+                <rect x="380" y="186" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="408" y="186" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="436" y="186" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="380" y="266" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="408" y="266" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="436" y="266" width="14" height="8" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="350" y="223" width="8" height="14" rx="2" fill="rgba(255,255,255,0.1)" />
+                <rect x="472" y="223" width="8" height="14" rx="2" fill="rgba(255,255,255,0.1)" />
+                <text x="415" y="235" fill="white" font-size="11" text-anchor="middle">T6</text>
+              </g>
+            </svg>
+            <div class="map-legend">
+              <div class="legend-item"><span class="legend-dot available"></span> Available</div>
+              <div class="legend-item"><span class="legend-dot selected"></span> Selected</div>
+              <div class="legend-item"><span class="legend-dot reserved"></span> Reserved</div>
+            </div>
+          </div>
+
+          <!-- Reservation Input Form -->
+          <div class="seating-form-container">
+            <h3 class="form-title">Secure Table Placement</h3>
+            <div class="form-group">
+              <label for="reserve-email">Registered Email</label>
+              <input type="email" id="reserve-email" placeholder="enter your email..." required>
+            </div>
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="reserve-guests">Party Size</label>
+                <select id="reserve-guests">
+                  <option value="2">2 Guests</option>
+                  <option value="4">4 Guests</option>
+                  <option value="6">6 Guests</option>
+                  <option value="8">8 Guests</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="reserve-table-num">Selected Table</label>
+                <input type="text" id="reserve-table-num" placeholder="Click map..." readonly>
+                <input type="hidden" id="reserve-table-id">
+              </div>
+            </div>
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="reserve-date">Date</label>
+                <input type="date" id="reserve-date" value="2026-06-30">
+              </div>
+              <div class="form-group">
+                <label for="reserve-time">Time Slot</label>
+                <select id="reserve-time">
+                  <option value="18:00">6:00 PM</option>
+                  <option value="19:30">7:30 PM (Peak)</option>
+                  <option value="21:00">9:00 PM</option>
+                  <option value="22:30">10:30 PM</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reserve-occasion">Special Occasion</label>
+              <select id="reserve-occasion">
+                <option value="dinner">Casual Dining</option>
+                <option value="date">Romantic Evening</option>
+                <option value="birthday">Anniversary / Birthday</option>
+                <option value="business">Executive Gathering</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-block" id="reserve-submit-btn">Submit Booking Request</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scroll-Based Sourcing & Storytelling Section -->
+    <section class="sourcing-section" id="sourcing-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag font-caps">Uncompromised Quality</span>
+          <h2 class="section-title">Visual Ingredient Sourcing</h2>
+          <p class="section-subtitle">Scroll to trace the origins of our signature ingredients, harvested from the most rich agricultural climates on earth.</p>
+        </div>
+
+        <div class="sourcing-timeline" id="sourcing-timeline">
+          <div class="sourcing-step" id="source-steak">
+            <div class="sourcing-visual">
+              <img src="https://lh3.googleusercontent.com/aida/AP1WRLvzM5yY_InNk0XxSu6ObPCN-a_PjlntEHoAgtNzKa-JqA5ukrciAw21oyQnXo58-k3dkXJgqVRfPhZCgO6NFi2RTBkKN0_v8czksiz_Sel0BYmcLjt_4cd3WFZsOEL6sou1s6YdIVuBztwGDJvNVk2FnpudtxVPLL0f3beFdvdEDRb9AYh31h0KdCoKY1mxbrbh5xJxIojPrI9XVMKOfuCliKGV9oM47KdV_dXA3VS53ETtL-nSPehpnW1t" alt="Miyazaki Wagyu Ribeye Steak" loading="lazy">
+            </div>
+            <div class="sourcing-detail">
+              <span class="sourcing-location">Miyazaki, Japan</span>
+              <h3>A5 Wagyu Beef</h3>
+              <p>Hand-selected ribeyes displaying intricate marbling levels of BMS 10+. Raised in temperate microclimates on custom fermented grain diets for unparalleled tenderness.</p>
+            </div>
+          </div>
+
+          <div class="sourcing-step" id="source-truffle">
+            <div class="sourcing-visual">
+              <img src="https://lh3.googleusercontent.com/aida/AP1WRLup8zBZIzweVD3EEtxkw-AW0Nk8UvhEtCydbbajGGzAK7oBlLa6JKdg2KWdx-noutZPmBXt3aUJZdoQGs2pycG781UnkH9j0EOGlMat8cS2kpDOWdhEHxe47Qel1YP6PFPkjsS5glXOFoG0mf8pT6E7laQ4lkCHJf7UK9lkgiYIl4atXWx1ald8mDBbTzuuy9YGCSpFgVGSl40ZIbuCegyGn9Og_TwaTHqx7C1NZGdYmwJPRtykqK63a7Gv" alt="Alba White Truffles" loading="lazy">
+            </div>
+            <div class="sourcing-detail">
+              <span class="sourcing-location">Alba, Italy</span>
+              <h3>Alba White Truffles</h3>
+              <p>Foraged by trained Lagotto Romagnolo hounds in the damp forests of Piedmont. Shipped within 36 hours of harvest to capture their maximum volatile aromatic compounds.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Virtual Sommelier Slide-out Panel -->
+  <div class="sommelier-panel" id="sommelier-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h3>Virtual Sommelier</h3>
+      <button class="close-btn" id="close-sommelier" aria-label="Close Sommelier">✕</button>
+    </div>
+    <div class="panel-content">
+      <div class="chat-history" id="sommelier-chat">
+        <div class="chat-message bot">
+          <p>Welcome to Lumina's Reserve Cellar. Select a dish from your active order or list a preference, and I will recommend the perfect vintage pairing.</p>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="sommelier-input" placeholder="Ask about wine pairings or vintages...">
+        <button class="btn btn-primary" id="sommelier-send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Business Automation Dashboard Modal -->
+  <div class="admin-modal" id="admin-modal" aria-hidden="true">
+    <div class="admin-container">
+      <div class="admin-header">
+        <div class="admin-logo">
+          <span class="badge uppercase">Lumina Ops</span>
+          <h2>Startup Business Automation Dashboard</h2>
+        </div>
+        <button class="close-btn" id="close-admin" aria-label="Close Admin Modal">✕</button>
+      </div>
+      
+      <div class="admin-grid">
+        <!-- CRM Profile Lookups -->
+        <div class="admin-card" id="admin-crm">
+          <h3>Guest Profile Lookup & CRM</h3>
+          <div class="search-bar">
+            <input type="text" id="guest-search" placeholder="Search guests by 'Sarah' or 'Alex'...">
+            <button class="btn btn-secondary btn-sm" id="guest-search-btn">Search</button>
+          </div>
+          <div class="guest-result" id="guest-result-box">
+            <p class="muted">Search for a customer profile to view taste tokens and history.</p>
+          </div>
+        </div>
+
+        <!-- Waitlist & Live Table Allocation -->
+        <div class="admin-card" id="admin-tables">
+          <h3>Smart Table Layout & Waitlist</h3>
+          <div class="waitlist-summary">
+            <div class="stat-box">
+              <span class="stat-val" id="admin-open-tables">4 Tables</span>
+              <span class="stat-lbl">Available</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="waitlist-count">2</span>
+              <span class="stat-lbl">Waitlist</span>
+            </div>
+          </div>
+          <ul class="waitlist-list" id="waitlist-items">
+            <!-- Dynamically populated waitlist -->
+          </ul>
+          <button class="btn btn-primary btn-sm btn-block" id="auto-assign-btn">Auto-Assign Open Tables</button>
+        </div>
+
+        <!-- Demand Forecasting & AI Scheduling -->
+        <div class="admin-card" id="admin-forecast">
+          <h3>AI Demand Forecasting</h3>
+          <div class="forecast-meta">
+            <span>Forecast Date: Today (Jun 29)</span>
+            <span class="high-confidence">94% Confidence</span>
+          </div>
+          <svg class="forecast-chart" viewBox="0 0 300 120">
+            <!-- Grid Lines -->
+            <line x1="20" y1="100" x2="280" y2="100" stroke="#333" stroke-width="1" />
+            <line x1="20" y1="20" x2="280" y2="20" stroke="#222" stroke-width="1" stroke-dasharray="2" />
+            <!-- Predicted Volume Line -->
+            <path d="M 20 90 Q 70 80 120 40 T 220 30 T 280 80" fill="none" stroke="#FFBF00" stroke-width="2" />
+            <!-- Actual Volume Line (until now) -->
+            <path d="M 20 90 Q 70 82 120 45" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="3" />
+            <text x="25" y="115" fill="#666" font-size="8">6 PM</text>
+            <text x="120" y="115" fill="#666" font-size="8">8 PM</text>
+            <text x="220" y="115" fill="#666" font-size="8">10 PM</text>
+          </svg>
+          <div class="forecast-action">
+            <p class="forecast-rec">💡 **AI recommendation**: Peak demand expected at 8:15 PM. Scheduled +1 floor server, prepared +15 portions Wagyu Ribeye.</p>
+          </div>
+        </div>
+
+        <!-- Smart Supply Chain Alerts -->
+        <div class="admin-card" id="admin-supply">
+          <h3>Supply Chain & Automated Alerts</h3>
+          <div class="alert-item alert-critical" id="alert-truffle-box">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-desc">
+              <h4>Alba White Truffles Low Stock</h4>
+              <p id="truffle-stock-status">Current stock: 120g. Forecasted requirement: 350g by July 1st.</p>
+            </div>
+            <button class="btn btn-secondary btn-xs" id="truffle-reorder" data-id="1">Auto-Reorder</button>
+          </div>
+          <div class="alert-item alert-normal">
+            <span class="alert-icon">✓</span>
+            <div class="alert-desc">
+              <h4>A5 Wagyu Beef Restocked</h4>
+              <p>Reorder #4802 shipped. Arrival: Tomorrow 8:00 AM.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shopping Cart Drawer -->
+  <div class="cart-panel" id="cart-panel" aria-hidden="true">
+    <div class="panel-header">
+      <h3>Your Culinary Basket</h3>
+      <button class="close-btn" id="close-cart" aria-label="Close Cart">✕</button>
+    </div>
+    <div class="panel-content">
+      <div class="cart-items" id="cart-items-container">
+        <p class="muted">Basket is currently empty.</p>
+      </div>
+      <div class="cart-summary" id="cart-summary">
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="cart-checkout-form" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <h4 style="font-size: 13px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);">Payment Integration (Stripe/UPI Mock)</h4>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <input type="text" id="stripe-card" placeholder="Card Number: 4242 •••• •••• 4242" style="width: 100%; padding: 8px 12px; background: rgba(18,18,18,0.4); border: 1px solid var(--border-color); color: white; border-radius: var(--radius-sm); font-size: 13px;">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="checkout-btn" disabled>Place Order (Checkout)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="confirmation-modal" id="confirmation-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <span class="success-icon">✦</span>
+      <h3 id="confirm-title">Reservation Confirmed</h3>
+      <p id="confirm-message">Your table is locked on Jun 30 under Lumina's Midnight Reserve experience.</p>
+      <button class="btn btn-primary" id="confirm-close-btn">Return to Lounge</button>
+    </div>
+  </div>
+
+  <!-- Live Status Socket Notification Alert Toast -->
+  <div class="socket-toast" id="socket-toast" aria-hidden="true">
+    <span class="toast-pulse"></span>
+    <span id="toast-text">Order status updated to Preparing</span>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>
