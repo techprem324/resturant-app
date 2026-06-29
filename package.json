@@ -5,7 +5,6 @@
   "scripts": {
     "dev:frontend": "npx http-server ./frontend -p 3000",
     "dev:backend": "node ./backend/server.js",
-    "sync": "node watch-and-push.js",
     "start": "node ./backend/server.js"
   },
   "dependencies": {
